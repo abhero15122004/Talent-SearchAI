@@ -1,0 +1,442 @@
+{
+  "metadata": {
+    "evaluation_timestamp": "2026-10-29T18:24:58.415508+00:00",
+    "dataset_version": "1.0.0-eval",
+    "dataset_description": "Multi-discipline evaluation benchmark for candidate ranking, relevance retrieval, and skill extraction calibration.",
+    "random_seed": 42,
+    "python_version": "3.13.5",
+    "os_platform": "Windows-11-10.0.26300-SP0",
+    "k_values": [
+      1,
+      3,
+      5
+    ],
+    "total_job_queries": 5,
+    "total_candidates_evaluated": 33,
+    "splits": {
+      "train_jobs": [
+        "job-backend-java",
+        "job-data-ml"
+      ],
+      "validation_jobs": [
+        "job-fullstack-web"
+      ],
+      "test_jobs": [
+        "job-frontend-react",
+        "job-devops-cloud"
+      ]
+    }
+  },
+  "metrics_by_split": {
+    "overall": {
+      "TF-IDF Lexical": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3666,
+        "NDCG@3": 0.8673,
+        "P@3": 0.7333,
+        "R@3": 0.8,
+        "NDCG@5": 0.9443,
+        "P@5": 0.54,
+        "R@5": 0.9333,
+        "MRR": 1.0,
+        "latency_ms": 3.356,
+        "mean_latency_ms": 3.36,
+        "latency_per_candidate_ms": 0.51
+      },
+      "Dense Semantic (all-MiniLM-L6-v2)": {
+        "NDCG@1": 0.8857,
+        "P@1": 1.0,
+        "R@1": 0.3666,
+        "NDCG@3": 0.9455,
+        "P@3": 0.8667,
+        "R@3": 0.9333,
+        "NDCG@5": 0.9548,
+        "P@5": 0.58,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 512.418,
+        "mean_latency_ms": 512.42,
+        "latency_per_candidate_ms": 77.64
+      },
+      "TalentMatch Hybrid (Phase 5)": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3666,
+        "NDCG@3": 0.9222,
+        "P@3": 0.8,
+        "R@3": 0.8667,
+        "NDCG@5": 0.9707,
+        "P@5": 0.58,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 162.048,
+        "mean_latency_ms": 162.05,
+        "latency_per_candidate_ms": 24.55
+      },
+      "Two-Stage + Cross-Encoder": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3666,
+        "NDCG@3": 0.8144,
+        "P@3": 0.7334,
+        "R@3": 0.8,
+        "NDCG@5": 0.928,
+        "P@5": 0.58,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 156.828,
+        "mean_latency_ms": 156.83,
+        "latency_per_candidate_ms": 23.76
+      }
+    },
+    "train": {
+      "TF-IDF Lexical": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3333,
+        "NDCG@3": 0.8147,
+        "P@3": 0.6666,
+        "R@3": 0.6666,
+        "NDCG@5": 0.9199,
+        "P@5": 0.5,
+        "R@5": 0.8334,
+        "MRR": 1.0,
+        "latency_ms": 3.915,
+        "mean_latency_ms": 3.36,
+        "latency_per_candidate_ms": 0.51
+      },
+      "Dense Semantic (all-MiniLM-L6-v2)": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3333,
+        "NDCG@3": 0.9798,
+        "P@3": 1.0,
+        "R@3": 1.0,
+        "NDCG@5": 0.9809,
+        "P@5": 0.6,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 1135.66,
+        "mean_latency_ms": 512.42,
+        "latency_per_candidate_ms": 77.64
+      },
+      "TalentMatch Hybrid (Phase 5)": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3333,
+        "NDCG@3": 0.8636,
+        "P@3": 0.8334,
+        "R@3": 0.8334,
+        "NDCG@5": 0.9501,
+        "P@5": 0.6,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 179.355,
+        "mean_latency_ms": 162.05,
+        "latency_per_candidate_ms": 24.55
+      },
+      "Two-Stage + Cross-Encoder": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3333,
+        "NDCG@3": 0.7272,
+        "P@3": 0.6667,
+        "R@3": 0.6667,
+        "NDCG@5": 0.9063,
+        "P@5": 0.6,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 176.72,
+        "mean_latency_ms": 156.83,
+        "latency_per_candidate_ms": 23.76
+      }
+    },
+    "validation": {
+      "TF-IDF Lexical": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.5,
+        "NDCG@3": 1.0,
+        "P@3": 0.6667,
+        "R@3": 1.0,
+        "NDCG@5": 1.0,
+        "P@5": 0.5,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 2.49,
+        "mean_latency_ms": 3.36,
+        "latency_per_candidate_ms": 0.51
+      },
+      "Dense Semantic (all-MiniLM-L6-v2)": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.5,
+        "NDCG@3": 1.0,
+        "P@3": 0.6667,
+        "R@3": 1.0,
+        "NDCG@5": 1.0,
+        "P@5": 0.5,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 63.91,
+        "mean_latency_ms": 512.42,
+        "latency_per_candidate_ms": 77.64
+      },
+      "TalentMatch Hybrid (Phase 5)": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.5,
+        "NDCG@3": 1.0,
+        "P@3": 0.6667,
+        "R@3": 1.0,
+        "NDCG@5": 1.0,
+        "P@5": 0.5,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 107.2,
+        "mean_latency_ms": 162.05,
+        "latency_per_candidate_ms": 24.55
+      },
+      "Two-Stage + Cross-Encoder": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.5,
+        "NDCG@3": 1.0,
+        "P@3": 0.6667,
+        "R@3": 1.0,
+        "NDCG@5": 1.0,
+        "P@5": 0.5,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 97.26,
+        "mean_latency_ms": 156.83,
+        "latency_per_candidate_ms": 23.76
+      }
+    },
+    "test": {
+      "TF-IDF Lexical": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3333,
+        "NDCG@3": 0.8535,
+        "P@3": 0.8334,
+        "R@3": 0.8334,
+        "NDCG@5": 0.9409,
+        "P@5": 0.6,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 3.23,
+        "mean_latency_ms": 3.36,
+        "latency_per_candidate_ms": 0.51
+      },
+      "Dense Semantic (all-MiniLM-L6-v2)": {
+        "NDCG@1": 0.7143,
+        "P@1": 1.0,
+        "R@1": 0.3333,
+        "NDCG@3": 0.8839,
+        "P@3": 0.8334,
+        "R@3": 0.8334,
+        "NDCG@5": 0.906,
+        "P@5": 0.6,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 113.43,
+        "mean_latency_ms": 512.42,
+        "latency_per_candidate_ms": 77.64
+      },
+      "TalentMatch Hybrid (Phase 5)": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3333,
+        "NDCG@3": 0.942,
+        "P@3": 0.8334,
+        "R@3": 0.8334,
+        "NDCG@5": 0.9768,
+        "P@5": 0.6,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 172.165,
+        "mean_latency_ms": 162.05,
+        "latency_per_candidate_ms": 24.55
+      },
+      "Two-Stage + Cross-Encoder": {
+        "NDCG@1": 1.0,
+        "P@1": 1.0,
+        "R@1": 0.3333,
+        "NDCG@3": 0.8088,
+        "P@3": 0.8334,
+        "R@3": 0.8334,
+        "NDCG@5": 0.9137,
+        "P@5": 0.6,
+        "R@5": 1.0,
+        "MRR": 1.0,
+        "latency_ms": 166.72,
+        "mean_latency_ms": 156.83,
+        "latency_per_candidate_ms": 23.76
+      }
+    }
+  },
+  "extraction_metrics": {
+    "precision": 0.6919,
+    "recall": 0.5268,
+    "f1": 0.5871
+  },
+  "error_diagnostics": {
+    "total_issues_detected": 12,
+    "diagnostics": [
+      {
+        "job_id": "job-backend-java",
+        "model": "TF-IDF Lexical",
+        "candidate_id": "java-cand-05",
+        "candidate_name": "Carlos Gomez",
+        "category": "MANDATORY_REQUIREMENT_VIOLATION",
+        "severity": "CRITICAL",
+        "model_score": 13.8,
+        "true_relevance": 1,
+        "missing_skills": [
+          "java",
+          "spring boot"
+        ],
+        "explanation": "Model ranked candidate 'Carlos Gomez' in top 3 despite missing mandatory requirements (java, spring boot)."
+      },
+      {
+        "job_id": "job-backend-java",
+        "model": "TF-IDF Lexical",
+        "candidate_id": "java-cand-02",
+        "candidate_name": "Marcus Aurel",
+        "category": "SYNONYM_NORMALIZATION_FAILURE",
+        "severity": "MEDIUM",
+        "model_score": 10.91,
+        "true_relevance": 3,
+        "explanation": "Model failed to recognize canonical synonyms (e.g. K8s, Spring, TS) for candidate 'Marcus Aurel', scoring only 10.91."
+      },
+      {
+        "job_id": "job-frontend-react",
+        "model": "TalentMatch Hybrid (Phase 5)",
+        "candidate_id": "fe-cand-06",
+        "candidate_name": "Simon Croft",
+        "category": "KEYWORD_FALSE_POSITIVE",
+        "severity": "HIGH",
+        "model_score": 75.32,
+        "true_relevance": 0,
+        "explanation": "Model ranked keyword-stuffed resume 'Simon Croft' in top 3 with score 75.32. Candidate only has course/sales mentions of target keywords."
+      },
+      {
+        "job_id": "job-frontend-react",
+        "model": "Two-Stage + Cross-Encoder",
+        "candidate_id": "fe-cand-06",
+        "candidate_name": "Simon Croft",
+        "category": "KEYWORD_FALSE_POSITIVE",
+        "severity": "HIGH",
+        "model_score": 77.19,
+        "true_relevance": 0,
+        "explanation": "Model ranked keyword-stuffed resume 'Simon Croft' in top 3 with score 77.19. Candidate only has course/sales mentions of target keywords."
+      },
+      {
+        "job_id": "job-data-ml",
+        "model": "TalentMatch Hybrid (Phase 5)",
+        "candidate_id": "data-cand-03",
+        "candidate_name": "Gaurav Sen",
+        "category": "SYNONYM_NORMALIZATION_FAILURE",
+        "severity": "MEDIUM",
+        "model_score": 34.65,
+        "true_relevance": 3,
+        "explanation": "Model failed to recognize canonical synonyms (e.g. K8s, Spring, TS) for candidate 'Gaurav Sen', scoring only 34.65."
+      },
+      {
+        "job_id": "job-data-ml",
+        "model": "Two-Stage + Cross-Encoder",
+        "candidate_id": "data-cand-03",
+        "candidate_name": "Gaurav Sen",
+        "category": "SYNONYM_NORMALIZATION_FAILURE",
+        "severity": "MEDIUM",
+        "model_score": 29.79,
+        "true_relevance": 3,
+        "explanation": "Model failed to recognize canonical synonyms (e.g. K8s, Spring, TS) for candidate 'Gaurav Sen', scoring only 29.79."
+      },
+      {
+        "job_id": "job-devops-cloud",
+        "model": "TF-IDF Lexical",
+        "candidate_id": "devops-cand-04",
+        "candidate_name": "Ryan Scott",
+        "category": "MANDATORY_REQUIREMENT_VIOLATION",
+        "severity": "CRITICAL",
+        "model_score": 18.19,
+        "true_relevance": 1,
+        "missing_skills": [
+          "kubernetes",
+          "terraform"
+        ],
+        "explanation": "Model ranked candidate 'Ryan Scott' in top 3 despite missing mandatory requirements (kubernetes, terraform)."
+      },
+      {
+        "job_id": "job-devops-cloud",
+        "model": "TF-IDF Lexical",
+        "candidate_id": "devops-cand-02",
+        "candidate_name": "Alexander Hayes",
+        "category": "SYNONYM_NORMALIZATION_FAILURE",
+        "severity": "MEDIUM",
+        "model_score": 9.48,
+        "true_relevance": 3,
+        "explanation": "Model failed to recognize canonical synonyms (e.g. K8s, Spring, TS) for candidate 'Alexander Hayes', scoring only 9.48."
+      },
+      {
+        "job_id": "job-fullstack-web",
+        "model": "TF-IDF Lexical",
+        "candidate_id": "fs-cand-03",
+        "candidate_name": "Siddharth Rao",
+        "category": "MANDATORY_REQUIREMENT_VIOLATION",
+        "severity": "CRITICAL",
+        "model_score": 13.65,
+        "true_relevance": 1,
+        "missing_skills": [
+          "node.js"
+        ],
+        "explanation": "Model ranked candidate 'Siddharth Rao' in top 3 despite missing mandatory requirements (node.js)."
+      },
+      {
+        "job_id": "job-fullstack-web",
+        "model": "Dense Semantic (all-MiniLM-L6-v2)",
+        "candidate_id": "fs-cand-03",
+        "candidate_name": "Siddharth Rao",
+        "category": "MANDATORY_REQUIREMENT_VIOLATION",
+        "severity": "CRITICAL",
+        "model_score": 71.17,
+        "true_relevance": 1,
+        "missing_skills": [
+          "node.js"
+        ],
+        "explanation": "Model ranked candidate 'Siddharth Rao' in top 3 despite missing mandatory requirements (node.js)."
+      },
+      {
+        "job_id": "job-fullstack-web",
+        "model": "TalentMatch Hybrid (Phase 5)",
+        "candidate_id": "fs-cand-03",
+        "candidate_name": "Siddharth Rao",
+        "category": "MANDATORY_REQUIREMENT_VIOLATION",
+        "severity": "CRITICAL",
+        "model_score": 32.08,
+        "true_relevance": 1,
+        "missing_skills": [
+          "node.js"
+        ],
+        "explanation": "Model ranked candidate 'Siddharth Rao' in top 3 despite missing mandatory requirements (node.js)."
+      },
+      {
+        "job_id": "job-fullstack-web",
+        "model": "Two-Stage + Cross-Encoder",
+        "candidate_id": "fs-cand-03",
+        "candidate_name": "Siddharth Rao",
+        "category": "MANDATORY_REQUIREMENT_VIOLATION",
+        "severity": "CRITICAL",
+        "model_score": 28.58,
+        "true_relevance": 1,
+        "missing_skills": [
+          "node.js"
+        ],
+        "explanation": "Model ranked candidate 'Siddharth Rao' in top 3 despite missing mandatory requirements (node.js)."
+      }
+    ]
+  }
+}

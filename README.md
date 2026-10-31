@@ -1,352 +1,174 @@
-# Customer Relationship Manager (CRM) Web Application
+# TalentMatch AI &bull; Enterprise Recruitment &amp; Talent Intelligence Platform
 
-A full-stack, enterprise-grade Customer Relationship Manager (CRM) web application built using **Java 17**, **Spring Boot 3.5.6**, **Spring MVC**, **Spring Data JPA**, **Hibernate ORM**, **MySQL 8.x**, and **Thymeleaf**.
+[![Build & Test](https://img.shields.io/badge/Build-Passing-brightgreen)]()
+[![Java 21](https://img.shields.io/badge/Java-21%20LTS-blue)]()
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-brightgreen)]()
+[![React](https://img.shields.io/badge/React-18.3%20%7C%20TypeScript-61DAFB)]()
+[![Vite](https://img.shields.io/badge/Vite-6.x-646CFF)]()
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1)]()
+[![Security](https://img.shields.io/badge/Spring%20Security-JWT%20%2B%20BCrypt-red)]()
 
-The application demonstrates clean layered architecture, robust database persistence, server-side Jakarta Bean Validation, resilient error handling, responsive UI design, and automated test coverage without external test dependencies.
-
----
-
-## 1. Project Overview
-
-The Customer Relationship Manager (CRM) enables sales and operations managers to maintain, track, and manage customer records seamlessly. It implements full Create, Read, Update, and Delete (CRUD) operations backed by a relational MySQL database.
-
-Key architectural features include:
-- Strict separation of concerns (Entity, Repository, Service, Controller, Exception layers).
-- Server-side and database-level duplicate email prevention.
-- Post/Redirect/Get (PRG) pattern for idempotency on form submissions.
-- Self-contained automated testing using an isolated in-memory H2 database alongside comprehensive unit and MockMvc integration tests.
+TalentMatch AI is an enterprise-grade recruitment and talent intelligence platform. It replaces manual candidate screening with structured competency extraction, verifiable evidence tracking, and transparent multi-factor talent-to-job matching.
 
 ---
 
-## 2. Features
+## Key Capabilities
 
-- **Customer Directory**: View all registered customers in a clean, responsive data table with formatted columns and customer counts.
-- **Empty State UX**: Informative, user-friendly empty state with an invitation to add the first customer when no records exist.
-- **Add Customer**: Validated form capturing First Name, Last Name, and Email Address.
-- **Edit Customer**: Pre-populated edit form allowing customer updates while safely permitting a customer to retain their existing email without false duplicate conflicts.
-- **Delete Customer**: Destructive action executed strictly via HTTP POST with a client-side JavaScript confirmation prompt.
-- **Server-Side Validation**: Jakarta Bean Validation (`@NotBlank`, `@Email`, `@Size`) with field-level inline error banners.
-- **Email Uniqueness**: Enforced both in application business logic and via database table unique constraints (`uq_customers_email`).
-- **Resilient Error Handling**: Centralized `@ControllerAdvice` providing clean error views without leaking SQL syntax, credentials, or internal stack traces.
+### Phase 1: Core Foundation & Multi-Tenancy
+- **Multi-Tenant Boundary Isolation**: Recruiter access is cryptographically and logically scoped to their organization (`tenant_id`). Cross-tenant access is strictly denied at both the security context and database layer.
+- **Defense-in-Depth Authentication**: Stateless HMAC-SHA256 JWT tokens containing subject, roles, and organization claims, paired with 12-round BCrypt password hashing.
+- **Immutable Schema Migrations**: Flyway version-controlled migrations with Hibernate schema validation (`spring.jpa.hibernate.ddl-auto=validate`).
+- **Comprehensive Audit Trail**: Security, authentication, and organizational events are captured in an append-only audit registry (`audit_logs`).
+
+### Phase 2: Job Requisition Management
+- **Structured Job Specifications**: Title, department, location, employment type, description, and experience bounds.
+- **Normalized Requirements**: Mandatory vs. preferred skills and qualifications (Education, Certification, Experience, Skill).
+- **Normalized Matching Weights**: Recruiter-configurable weights for skill coverage, experience relevance, project relevance, and semantic similarity, strictly validated to sum to 100.00%.
+- **Recruiter Controls**: Configurable candidate shortlist counts and minimum recommendation score thresholds.
+
+### Phase 3: Bulk Resume Ingestion Pipeline (No RabbitMQ)
+- **High-Throughput Ingestion**: Supports browser folder upload (`webkitdirectory`) with multi-file fallback and ZIP archive upload.
+- **Security & Storage Protection**: Strict Zip Slip path traversal rejection (`..` prevention), Zip Bomb protection with decompressed byte limits, bounded file counts, and UUID-based storage keys outside MySQL in local non-public storage.
+- **Content-Based MIME Detection**: Apache Tika 2.9.2 inspection of stream magic bytes (rejects fake extensions, encrypted, or corrupted files).
+- **Organization-Scoped Deduplication**: SHA-256 content hashes identify duplicate resumes within the organization, marking duplicates `SKIPPED_DUPLICATE` without duplicating talent profiles.
+- **Bounded Concurrency**: Bounded `ThreadPoolTaskExecutor` (core: 4, max: 8, queue: 200) with immediate HTTP `202 ACCEPTED` batch ID response.
+- **Unhallucinated Candidate Extraction**: Strict heuristic parsing of contact details, skills, summary, education, experience, and projects with zero AI hallucinations.
+- **Startup Recovery**: Automatic detection and recovery of interrupted ingestion jobs on server restart.
+- **Recruiter Dashboard UI**: Live status polling, per-file extraction breakdown, single-click retry for failed documents, candidate talent pool directory, and verbatim text inspection.
 
 ---
 
-## 3. Architecture & Project Structure
-
-The project strictly follows a layered enterprise architecture:
+## System Architecture & Stack
 
 ```
-com.example.crm
-├── CrmApplication.java               # Spring Boot Application Entrypoint
-├── entity
-│   └── Customer.java                 # JPA Entity with Validation Annotations
-├── repository
-│   └── CustomerRepository.java       # Spring Data JPA Repository
-├── service
-│   ├── CustomerService.java          # Business Logic Interface
-│   └── CustomerServiceImpl.java      # Transactional Service Implementation
-├── controller
-│   └── CustomerController.java       # Spring MVC Web Controller
-└── exception
-    ├── CustomerNotFoundException.java # Exception for missing entities
-    ├── DuplicateEmailException.java   # Exception for duplicate email conflicts
-    └── GlobalExceptionHandler.java    # Centralized controller advice
-
-Resources:
-src/main/resources
-├── application.properties             # Environment-overridable MySQL config
-├── templates
-│   ├── customers.html                 # Customer list and empty state view
-│   ├── customer-form.html             # Add / Edit customer form view
-│   └── error.html                     # User-friendly error view
-└── static
-    └── css
-        └── style.css                  # Responsive modern stylesheet
-
-Test Resources:
-src/test/resources
-└── application.properties             # In-memory H2 test database profile
-
-Database Scripts:
-database
-└── schema.sql                         # MySQL 8.x DDL and seed data script
-```
-
----
-
-## 4. Technology Stack
-
-- **Java**: Version 17+ (LTS / release 17 target)
-- **Framework**: Spring Boot 3.5.6
-- **Web Layer**: Spring MVC, Embedded Apache Tomcat
-- **Template Engine**: Thymeleaf 3.x
-- **Persistence**: Spring Data JPA, Hibernate ORM 6.6
-- **Database**: MySQL 8.x (production/local run), H2 Database (automated test isolation)
-- **Validation**: Jakarta Bean Validation (Hibernate Validator)
-- **Testing**: JUnit 5 (Jupiter), AssertJ, Mockito, Spring Boot Test, Spring MVC Test (MockMvc)
-- **Build Tool**: Apache Maven 3.9+ with Maven Wrapper (`mvnw` / `mvnw.cmd`)
-
----
-
-## 5. Prerequisites
-
-Before running the application, ensure the following are installed on your machine:
-
-1. **Java Development Kit (JDK)**: JDK 17 or higher.
-2. **Apache Maven**: Version 3.8+ (or use the included Maven Wrapper `mvnw` / `mvnw.cmd`).
-3. **MySQL Server**: MySQL 8.0 or 8.4 running locally on port 3306 (or reachable remotely).
-4. **Web Browser**: Chrome, Edge, Firefox, or Safari.
-
----
-
-## 6. Java & Maven Version Verification
-
-Verify that your installed Java runtime is version 17 or higher:
-
-### Windows (PowerShell or Command Prompt)
-```powershell
-java -version
-mvn -version
-```
-
-### macOS / Linux (Terminal)
-```bash
-java -version
-mvn -version
-```
-
-Expected output:
-```text
-java version "17.x.x" (or 21.x.x, 24.x.x)
-Apache Maven 3.9.x
+TalentMatch-AI/
+├── backend/                  # Java 21 & Spring Boot 3.5.6 REST API
+│   ├── src/main/java/com/talentmatch/
+│   │   ├── audit/            # Audit logging entity, repository, service
+│   │   ├── auth/             # Login, logout, /me endpoints & DTOs
+│   │   ├── candidate/        # Candidate profiles, talent search & retrieval
+│   │   ├── common/           # Global exceptions, ApiResponse, SecurityUtils
+│   │   ├── config/           # SecurityConfig, AsyncConfig, StorageProperties, CorsConfig
+│   │   ├── job/              # Job requisitions, skills, qualifications, weights
+│   │   ├── organization/     # Tenant organization domain models & API
+│   │   ├── resume/           # Ingestion pipeline, Tika parsing, bounded executor, storage
+│   │   ├── security/         # JWT provider, filter, UserPrincipal, UserDetailsService
+│   │   └── user/             # User domain models, BCrypt hashing, roles (ADMIN/RECRUITER)
+│   └── src/main/resources/
+│       ├── db/migration/     # Flyway SQL migrations (V1, V2, V3)
+│       └── application.properties
+├── frontend/                 # React 18 + TypeScript + Vite Recruiter Portal
+│   ├── src/
+│   │   ├── api/              # Axios client (jobs, resumes, candidates, auth)
+│   │   ├── components/       # Layout, Navbar, Sidebar, Badges, WeightMeter, LoadingSpinner
+│   │   ├── context/          # AuthContext for session management
+│   │   ├── pages/            # Dashboard, Jobs, Resumes Ingestion, Candidates
+│   │   ├── styles/           # Accessible, responsive design system
+│   │   └── types/            # TypeScript interfaces for API contracts & models
+│   └── package.json
+├── database/migrations/      # Canonical copy of Flyway schema migrations
+├── docs/                     # Architecture and operational documentation
+│   └── ARCHITECTURE.md
+└── .env.example              # Environment variables template
 ```
 
 ---
 
-## 7. MySQL Database & User Setup
+## Getting Started
 
-The repository includes a dedicated SQL script in `database/schema.sql`.
+### Prerequisites
+- **Java**: JDK 21+ (JDK 24 compatible with `--release 21`)
+- **Maven**: 3.9+
+- **Node.js**: v18+ (Node 22 LTS recommended) and npm
+- **MySQL**: 8.x (or run in `dev` profile using in-memory H2)
 
-Execute the following commands in MySQL Workbench or via the MySQL CLI client:
-
+### 1. Database Configuration
+By default, the backend expects a local MySQL 8.x database:
 ```sql
--- 1. Create the database
-CREATE DATABASE IF NOT EXISTS crm_db
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE crm_db;
-
--- 2. Optional: Create a dedicated user with grants
-CREATE USER IF NOT EXISTS 'crm_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON crm_db.* TO 'crm_user'@'localhost';
+CREATE DATABASE IF NOT EXISTS talentmatch_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'talentmatch_user'@'localhost' IDENTIFIED BY 'your_secure_db_password';
+GRANT ALL PRIVILEGES ON talentmatch_db.* TO 'talentmatch_user'@'localhost';
 FLUSH PRIVILEGES;
-
--- 3. Create the customers table
-CREATE TABLE IF NOT EXISTS customers (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    CONSTRAINT uq_customers_email UNIQUE (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 4. Insert sample data (optional)
-INSERT INTO customers (first_name, last_name, email) VALUES
-('John', 'Doe', 'john.doe@example.com'),
-('Jane', 'Smith', 'jane.smith@example.com'),
-('Robert', 'Johnson', 'robert.j@example.com')
-ON DUPLICATE KEY UPDATE id=id;
 ```
+Configure your credentials in `CRM/backend/src/main/resources/application.properties` or set environment variables according to `.env.example`.
 
----
-
-## 8. Database Configuration Instructions
-
-The application uses standard Spring Boot externalized configuration via `src/main/resources/application.properties`.
-
-Default configuration:
-```properties
-spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/crm_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true}
-spring.datasource.username=${SPRING_DATASOURCE_USERNAME:crm_user}
-spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:your_password}
-```
-
-### Overriding via Environment Variables
-
-To provide your local database credentials without modifying source files, set environment variables:
-
-#### Windows (PowerShell)
-```powershell
-$env:SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3306/crm_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
-$env:SPRING_DATASOURCE_USERNAME="root"
-$env:SPRING_DATASOURCE_PASSWORD="YourRootPasswordHere"
-```
-
-#### Windows (Command Prompt)
-```cmd
-set SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/crm_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-set SPRING_DATASOURCE_USERNAME=root
-set SPRING_DATASOURCE_PASSWORD=YourRootPasswordHere
-```
-
-#### macOS / Linux (Bash / Zsh)
+### 2. Running the Backend
+From the repository root:
 ```bash
-export SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3306/crm_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
-export SPRING_DATASOURCE_USERNAME="root"
-export SPRING_DATASOURCE_PASSWORD="YourRootPasswordHere"
+# Production/MySQL mode:
+mvn -f backend/pom.xml spring-boot:run
+
+# Local Development / In-Memory H2 mode (no MySQL required):
+mvn -f backend/pom.xml spring-boot:run -Dspring-boot.run.profiles=dev
 ```
+The API starts on `http://localhost:8080`.
+- **Swagger / OpenAPI Documentation**: `http://localhost:8080/swagger-ui.html`
+- **Actuator Health Endpoint**: `http://localhost:8080/actuator/health`
 
-A sample `.env.example` file is provided at the root of the workspace for documentation.
+### 3. Development Seed Accounts
+When running with `app.security.init-dev-data=true` (enabled by default in `dev` profile), the system automatically seeds sample organizations and initial users:
+- **Admin**: `admin@talentmatch.ai` (Role: `ADMIN`)
+- **Recruiter**: `recruiter@acme.com` (Role: `RECRUITER`, Organization: Acme Corp)
 
----
+If `APP_SECURITY_DEV_ADMIN_PASSWORD` and `APP_SECURITY_DEV_RECRUITER_PASSWORD` environment variables are omitted, strong 16-character random passwords are generated at startup and logged to console.
 
-## 9. IntelliJ IDEA Import Instructions
-
-1. Open **IntelliJ IDEA**.
-2. Select **File > Open...** and navigate to this workspace folder (`c:\Users\reddy\Downloads\CRM`).
-3. Select `pom.xml` and choose **Open as Project**.
-4. Allow IntelliJ to import Maven dependencies (ensure Project SDK is configured to JDK 17 or higher under **File > Project Structure > Project**).
-5. Locate `com.example.crm.CrmApplication` under `src/main/java/com/example/crm/`.
-6. Click the green **Run** triangle icon next to `main()` to launch the application.
-
----
-
-## 10. How to Run the Application
-
-### Option A: Using Maven CLI
-
-From the workspace root directory:
-
-#### Windows (PowerShell / CMD)
-```powershell
-mvn spring-boot:run
-```
-Or using the Maven wrapper:
-```powershell
-.\mvnw spring-boot:run
-```
-
-#### macOS / Linux
+### 4. Running the Frontend
 ```bash
-./mvnw spring-boot:run
+cd frontend
+npm install
+npm run dev
 ```
+The recruiter UI launches on `http://localhost:5173`.
 
-### Option B: Running the Packaged Executable JAR
-
-1. Build the application archive:
-   ```bash
-   mvn clean package -DskipTests
-   ```
-2. Run the executable jar:
-   ```bash
-   java -jar target/crm-0.0.1-SNAPSHOT.jar
-   ```
-
-Once started, open your web browser and navigate to:
-**[http://localhost:8080/customers](http://localhost:8080/customers)** (or [http://localhost:8080](http://localhost:8080)).
-
----
-
-## 11. How to Run Automated Tests
-
-The automated test suite runs 36 tests spanning unit tests, repository data persistence tests, and web layer MockMvc tests. Tests execute against an isolated in-memory H2 database, requiring no running MySQL instance.
-
-### Run All Tests
+To create a production frontend bundle:
 ```bash
-mvn clean test
+cd frontend
+npm run build
 ```
 
-### Test Coverage Highlights
-- **Service Layer (`CustomerServiceTest`)**: 14 tests verifying CRUD logic, unique email verification, updating a customer's details while retaining their own email, rejecting duplicate emails, and handling nonexistent customer IDs.
-- **Repository Layer (`CustomerRepositoryTest`)**: 7 tests verifying Spring Data JPA query derivations (`findByEmail`, `existsByEmail`, `existsByEmailAndIdNot`) and database-level constraint enforcement.
-- **Controller Layer (`CustomerControllerTest`)**: 14 tests using `MockMvc` verifying HTTP routing, model bindings, validation error presentation, empty table state, and Post/Redirect/Get workflows.
-- **Application Context (`CrmApplicationTests`)**: 1 test validating full Spring Boot application context startup.
+---
+
+## Running Automated Tests
+
+### Backend Tests
+Execute the complete Spring Boot unit and integration test suite:
+```bash
+mvn -f backend/pom.xml test
+```
+The test suite covers:
+- **`AuthControllerTest`**: Login authentication, invalid credentials rejection (401), `/me` identity verification, and unauthenticated access blocking.
+- **`JobControllerIntegrationTest` & `JobServiceTest`**: CRUD operations, matching weight normalization (must sum to 100%), recruiter organization scoping, and status transitions.
+- **`OrganizationIsolationTest`**: Multi-tenant isolation verification — confirms recruiters can access their own organization data but are strictly blocked (403 Forbidden) from accessing other tenants' data.
+- **`ResumeIngestionIntegrationTest`**: End-to-end multi-part and ZIP upload, bounded async execution, duplicate file detection (`SKIPPED_DUPLICATE`), failed file retry, and candidate profile extraction.
+- **`StorageServiceTest`**: Zip Slip path traversal rejection, Zip Bomb protection, max file bounds, and SHA-256 calculation.
+- **`TikaParserServiceTest`**: MIME byte inspection, unhallucinated candidate heuristic extraction, and error handling for corrupt documents.
+- **`JwtTokenProviderTest`**: Cryptographic HMAC-SHA256 signature generation, subject/claims extraction, and token tampering rejection.
+- **`UserServiceTest`**: 12-round BCrypt password hashing verification and duplicate email prevention.
+- **`TalentMatchApplicationTests`**: Flyway migration execution, Hibernate DDL schema validation, and Spring ApplicationContext initialization.
+
+### Frontend Typecheck & Build
+```bash
+cd frontend
+npm run build
+```
 
 ---
 
-## 12. Application Route Reference
+## Security Model
 
-| HTTP Method | Route | Description | View / Response |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/` | Root index route | Redirects to `/customers` |
-| `GET` | `/customers` | List all customer records | `customers.html` |
-| `GET` | `/customers/new` | Display new customer registration form | `customer-form.html` |
-| `POST` | `/customers/save` | Handle form submission (add or update) | Redirect to `/customers` or return `customer-form.html` on validation failure |
-| `GET` | `/customers/edit/{id}` | Load existing customer data into edit form | `customer-form.html` (or redirect on missing ID) |
-| `POST` | `/customers/delete/{id}` | Delete customer by primary key ID | Redirect to `/customers` with flash status message |
-
----
-
-## 13. Example CRUD Workflow
-
-### Step 1: Create a Customer
-1. Navigate to `http://localhost:8080/customers`.
-2. Click **+ Add Customer**.
-3. Fill in the form:
-   - First Name: `Sarah`
-   - Last Name: `Connor`
-   - Email: `sarah.c@example.com`
-4. Click **Save Customer**.
-5. You are redirected to `/customers` with a green alert: *"Customer 'Sarah Connor' was successfully added."*
-
-### Step 2: Read Customers
-- The customer table displays ID, First Name (`Sarah`), Last Name (`Connor`), Email (`sarah.c@example.com`), and Action buttons.
-- The total customer badge updates dynamically.
-
-### Step 3: Update Customer
-1. Click the blue **Edit** button next to Sarah Connor.
-2. The form loads pre-populated with her details.
-3. Update Last Name to `Connor-Reese`.
-4. Leave the email unchanged (`sarah.c@example.com`).
-5. Click **Save Customer**.
-6. The application validates that retaining her own email is permitted and redirects with: *"Customer 'Sarah Connor-Reese' was successfully updated."*
-
-### Step 4: Duplicate Email Rejection
-1. Click **+ Add Customer**.
-2. Enter First Name: `John`, Last Name: `Doe`, Email: `sarah.c@example.com`.
-3. Click **Save Customer**.
-4. The form remains open and highlights the email field with: *"This email address is already in use by another customer."*
-
-### Step 5: Delete Customer
-1. Next to the customer record, click the red **Delete** button.
-2. A browser dialog appears: *"Are you sure you want to delete customer 'Sarah Connor-Reese'?"*
-3. Click **OK**.
-4. An HTTP POST request is submitted to `/customers/delete/{id}`.
-5. The record is removed from MySQL, and you are redirected with: *"Customer was successfully deleted."*
-6. If all customers are deleted, the informative empty state panel is displayed.
+1. **Password Storage**: Passwords are never stored in plaintext. They are salted and hashed using BCrypt.
+2. **Stateless Sessions**: Authentication relies entirely on signed JSON Web Tokens (JWT). The server maintains zero session state.
+3. **Strict RBAC**:
+   - `ADMIN`: Global administration, system health, tenant creation.
+   - `RECRUITER`: Scoped strictly to their assigned `organization_id`. Cannot inspect or manipulate candidates, jobs, or resumes belonging to competing organizations.
+4. **Tenant Access Violations**: Any cross-tenant resource probe results in an immediate `TenantAccessDeniedException` and an entry in `audit_logs`.
+5. **Storage Defense**: User filenames are never trusted as storage keys; UUID storage keys isolate files on disk. ZIP entries with `..` or path escape attempts are rejected immediately.
 
 ---
 
-## 14. Troubleshooting Common Errors
+## Roadmap
 
-### 1. `CommunicationsException: Communications link failure`
-- **Cause**: MySQL server is not running, or is listening on a different port.
-- **Resolution**:
-  - Check that the MySQL service is active (Windows: `Get-Service MySQL80`, Linux: `systemctl status mysql`).
-  - Verify `SPRING_DATASOURCE_URL` points to the correct host and port (default: `localhost:3306`).
-
-### 2. `Access denied for user 'crm_user'@'localhost'`
-- **Cause**: Invalid database credentials or missing user permissions.
-- **Resolution**:
-  - Run the user creation and privilege grant commands from `database/schema.sql` using the MySQL root account.
-  - Or override credentials with your root password: `$env:SPRING_DATASOURCE_PASSWORD="your_password"`.
-
-### 3. `Port 8080 is already in use`
-- **Cause**: Another service or previous application instance is occupying port 8080.
-- **Resolution**:
-  - Run with an alternative port: `mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=8081"`.
-  - Or set environment variable: `$env:SERVER_PORT="8081"`.
-
----
-
-## 15. Security & Production Limitations
-
-This project is structured as a robust learning and demonstration CRM application. Before promoting this code to an internet-facing production environment, the following enterprise security controls should be implemented:
-
-1. **Authentication & Authorization**: Integrate Spring Security (OAuth2 / OIDC / LDAP / form-based login with BCrypt password hashing and role-based access control e.g., `ROLE_ADMIN`, `ROLE_MANAGER`).
-2. **CSRF Protection**: When Spring Security is active, CSRF tokens should be enabled on all mutation requests (`POST`, `PUT`, `DELETE`). Thymeleaf's `th:action` automatically binds CSRF tokens when Spring Security is on the classpath.
-3. **Database Schema Management**: Disable `spring.jpa.hibernate.ddl-auto=update` in production. Adopt controlled, version-controlled schema migrations using **Flyway** or **Liquibase**.
-4. **Secret Management**: Store sensitive database credentials in a secure secrets vault (AWS Secrets Manager, HashiCorp Vault, Azure Key Vault) rather than environment variables or property files.
-5. **HTTPS / TLS**: Terminate TLS at a reverse proxy (e.g., NGINX, Cloudflare) or configure TLS directly inside Spring Boot's embedded Tomcat using an SSL certificate.
-6. **Rate Limiting & Audit Logging**: Implement request rate limiting and append immutable audit logs for customer data modifications to adhere to compliance frameworks (e.g., GDPR, CCPA).
+- [x] **Phase 1**: Clean modular architecture, Java 21 + Spring Boot 3.5.6, React + TypeScript recruiter dashboard, Flyway migrations, JWT security, multi-tenant isolation, automated test suite.
+- [x] **Phase 2**: Job requisition management, skill & qualification requirements, normalized matching weights, tenant isolation, full recruiter UI.
+- [x] **Phase 3**: Bulk resume ingestion pipeline (no RabbitMQ), bounded Java thread pool, Apache Tika 2.9.2 extraction, duplicate detection, candidate talent inventory, retry mechanisms, live polling UI.
+- [ ] **Phase 4**: Python FastAPI service with `all-MiniLM-L6-v2` Sentence Transformers for multi-factor semantic matching and explainable scoring.
